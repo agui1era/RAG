@@ -1,0 +1,6 @@
+flask
+langchain
+transformers
+sentence-transformers
+faiss-cpu
+PyPDF2
