@@ -1,0 +1,96 @@
+/Users/oscaraguilera/Desktop/RAG/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/oscaraguilera/Desktop/RAG/app.py:7: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/oscaraguilera/Desktop/RAG/app.py:8: LangChainDeprecationWarning: Importing FAISS from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import FAISS
+
+with new imports of:
+
+>> from langchain_community.vectorstores import FAISS
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import FAISS
+/Users/oscaraguilera/Desktop/RAG/app.py:124: LangChainDeprecationWarning: The class `OpenAIEmbeddings` was deprecated in LangChain 0.0.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import OpenAIEmbeddings``.
+  docsearch = FAISS.load_local("faiss_index", OpenAIEmbeddings(api_key=API_KEY))
+2025-12-04 11:30:20,361 - INFO - No existing FAISS index found.
+2025-12-04 11:30:20,361 - INFO - No new files found to process.
+2025-12-04 11:30:20,361 - WARNING - Index is empty. Creating placeholder.
+2025-12-04 11:30:21,093 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-12-04 11:30:21,099 - INFO - Loading faiss.
+2025-12-04 11:30:21,112 - INFO - Successfully loaded faiss.
+/Users/oscaraguilera/Desktop/RAG/app.py:157: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/oscaraguilera/Desktop/RAG/app.py:157: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/oscaraguilera/Desktop/RAG/app.py:160: LangChainDeprecationWarning: The class `ChatOpenAI` was deprecated in LangChain 0.0.10 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import ChatOpenAI``.
+  llm = ChatOpenAI(api_key=API_KEY, model_name=MODEL_NAME, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
+2025-12-04 11:30:21,180 - INFO - Document initialization complete
+ * Serving Flask app 'app'
+ * Debug mode: on
+2025-12-04 11:30:21,223 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:9994
+ * Running on http://192.168.31.26:9994
+2025-12-04 11:30:21,223 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-04 11:30:21,224 - INFO -  * Restarting with stat
+/Users/oscaraguilera/Desktop/RAG/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/oscaraguilera/Desktop/RAG/app.py:7: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/oscaraguilera/Desktop/RAG/app.py:8: LangChainDeprecationWarning: Importing FAISS from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import FAISS
+
+with new imports of:
+
+>> from langchain_community.vectorstores import FAISS
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import FAISS
+/Users/oscaraguilera/Desktop/RAG/app.py:124: LangChainDeprecationWarning: The class `OpenAIEmbeddings` was deprecated in LangChain 0.0.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import OpenAIEmbeddings``.
+  docsearch = FAISS.load_local("faiss_index", OpenAIEmbeddings(api_key=API_KEY))
+2025-12-04 11:30:22,039 - INFO - No existing FAISS index found.
+2025-12-04 11:30:22,039 - INFO - No new files found to process.
+2025-12-04 11:30:22,039 - WARNING - Index is empty. Creating placeholder.
+2025-12-04 11:30:22,826 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-12-04 11:30:22,832 - INFO - Loading faiss.
+2025-12-04 11:30:22,844 - INFO - Successfully loaded faiss.
+/Users/oscaraguilera/Desktop/RAG/app.py:157: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/oscaraguilera/Desktop/RAG/app.py:157: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/oscaraguilera/Desktop/RAG/app.py:160: LangChainDeprecationWarning: The class `ChatOpenAI` was deprecated in LangChain 0.0.10 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import ChatOpenAI``.
+  llm = ChatOpenAI(api_key=API_KEY, model_name=MODEL_NAME, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
+2025-12-04 11:30:22,907 - INFO - Document initialization complete
+2025-12-04 11:30:22,927 - WARNING -  * Debugger is active!
+2025-12-04 11:30:22,936 - INFO -  * Debugger PIN: 115-915-443
