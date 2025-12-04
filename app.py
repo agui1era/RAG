@@ -9,6 +9,7 @@ from langchain_community.vectorstores import FAISS
 from langchain.docstore.document import Document
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 import tiktoken
 
 # Cargar variables de entorno desde el archivo .env
@@ -16,7 +17,8 @@ load_dotenv()
 
 # Configuración de Flask y CORS
 app = Flask(__name__, static_folder='static', template_folder='templates')
-CORS(app)
+# CORS abierto para el widget; se puede ajustar a dominios específicos si hace falta
+CORS(app, resources={r"/chat": {"origins": "*"}})
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,7 +26,11 @@ logger = logging.getLogger(__name__)
 
 # Variables de entorno
 API_KEY = os.getenv('OPENAI_API_KEY', 'tu_api_key_default')  # Clave de OpenAI
+BASE_DIR = Path(__file__).resolve().parent
 PDF_DIRECTORY = os.getenv('PDF_DIRECTORY', './pdfs')         # Directorio de PDFs
+PDF_DIRECTORY = Path(PDF_DIRECTORY)
+if not PDF_DIRECTORY.is_absolute():
+    PDF_DIRECTORY = BASE_DIR / PDF_DIRECTORY
 MAX_PAGES = int(os.getenv('MAX_PAGES', 10))                  # Máximo de páginas por PDF
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', 500))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', 200))
@@ -33,18 +39,21 @@ TEMPERATURE = float(os.getenv('TEMPERATURE', 0.0))
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT', "Eres un asistente útil de documentos PDF para la compañía XYZ. Tienes acceso a documentos internos. Usa los siguientes fragmentos de contexto para responder la pregunta al final. Si la respuesta no está en el contexto, di que no lo sabes, no intentes inventar una respuesta.")
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', 300))
 PORT = int(os.getenv('PORT', 9994))
+WIDGET_API_KEY = os.getenv('WIDGET_API_KEY', '')
+FAISS_INDEX_DIR = BASE_DIR / "faiss_index"
 
 import json
 
 # Variables globales para FAISS y QA
 docsearch = None
 qa = None
-PROCESSED_FILES_LOG = "processed_files.json"
+PROCESSED_FILES_LOG = BASE_DIR / "processed_files.json"
+documents_initialized = False
 
 
 def load_processed_files():
     """Carga la lista de archivos ya procesados."""
-    if os.path.exists(PROCESSED_FILES_LOG):
+    if PROCESSED_FILES_LOG.exists():
         try:
             with open(PROCESSED_FILES_LOG, 'r') as f:
                 return set(json.load(f))
@@ -62,17 +71,18 @@ def save_processed_files(processed_files):
 
 def load_pdfs_from_local(directory_path, processed_files):
     """Carga y procesa solo los PDFs nuevos desde un directorio local."""
+    directory_path = Path(directory_path)
     new_text = ""
     new_files = []
     
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
-        logger.info(f"Created directory: {directory_path}")
+    if not directory_path.exists():
+        directory_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory_path.resolve()}")
         return "", []
 
-    for filename in os.listdir(directory_path):
-        if filename.lower().endswith('.pdf') and filename not in processed_files:
-            filepath = os.path.join(directory_path, filename)
+    for filepath in directory_path.glob("*.pdf"):
+        filename = filepath.name
+        if filename not in processed_files:
             try:
                 with open(filepath, 'rb') as f:
                     pdf_reader = PdfReader(f)
@@ -107,10 +117,10 @@ def embed_documents(docs, existing_index=None):
             logger.info("Added new documents to existing FAISS index")
         else:
             faiss_index = FAISS.from_documents(doc_objs, embeddings)
-            logger.info("Created new FAISS index")
+        logger.info("Created new FAISS index")
             
-        faiss_index.save_local("faiss_index")
-        logger.info("FAISS index saved locally at 'faiss_index'")
+        faiss_index.save_local(str(FAISS_INDEX_DIR))
+        logger.info(f"FAISS index saved locally at '{FAISS_INDEX_DIR}'")
         return faiss_index
     except Exception as e:
         logger.error(f"Error embedding documents: {e}")
@@ -126,8 +136,8 @@ def initialize_documents():
     # 1. Intentar cargar el índice existente SOLO si hay archivos procesados
     if processed_files:
         try:
-            docsearch = FAISS.load_local("faiss_index", OpenAIEmbeddings(api_key=API_KEY), allow_dangerous_deserialization=True)
-            logger.info("FAISS index loaded from local storage")
+            docsearch = FAISS.load_local(str(FAISS_INDEX_DIR), OpenAIEmbeddings(api_key=API_KEY), allow_dangerous_deserialization=True)
+            logger.info(f"FAISS index loaded from local storage at {FAISS_INDEX_DIR}")
         except Exception:
             docsearch = None
             logger.info("No existing FAISS index found or error loading it.")
@@ -136,7 +146,7 @@ def initialize_documents():
         logger.info("Processed files list is empty. Starting with a fresh index.")
 
     # 2. Buscar archivos nuevos
-    logger.info(f"Checking for new files in {PDF_DIRECTORY}...")
+    logger.info(f"Checking for new files in {PDF_DIRECTORY.resolve()}...")
     logger.info(f"Already processed files: {processed_files}")
     new_pdf_text, new_files = load_pdfs_from_local(PDF_DIRECTORY, processed_files)
     
@@ -195,6 +205,19 @@ Helpful Answer:"""
     logger.info("Document initialization complete")
 
 
+@app.before_request
+def ensure_documents_initialized():
+    """Garantiza que el índice esté listo aunque la app se importe sin ejecutar este módulo directamente."""
+    global documents_initialized
+    if documents_initialized:
+        return
+    try:
+        initialize_documents()
+        documents_initialized = True
+    except Exception as e:
+        logger.critical(f"Failed to initialize documents on first request: {e}")
+
+
 @app.route('/')
 def index():
     """Sirve la página de prueba."""
@@ -207,12 +230,28 @@ def health_check():
     return jsonify(status='ok'), 200
 
 
-@app.route('/chat', methods=['POST'])
+@app.route('/chat', methods=['GET', 'POST', 'OPTIONS', 'HEAD'])
 def chat():
     """Procesa las consultas enviadas al servidor."""
-    data = request.json
+    if request.method in ('OPTIONS', 'HEAD'):
+        # Responder rápido a preflight CORS
+        return ('', 204)
+    if request.method == 'GET':
+        return jsonify({
+            'status': 'ok',
+            'message': 'Use POST with JSON {prompt, history} to chat.'
+        })
+
+    data = request.json or {}
     prompt = data.get('prompt', '')
     history_raw = data.get('history', [])
+
+    # Autorización básica por API key si se configuró
+    if WIDGET_API_KEY:
+        provided_key = request.headers.get('x-api-key')
+        if provided_key != WIDGET_API_KEY:
+            logger.warning("Unauthorized request: invalid API key")
+            return jsonify({'error': 'Unauthorized'}), 401
 
     if not prompt:
         logger.warning("Request missing required 'prompt' field")
@@ -252,9 +291,21 @@ def chat():
         return jsonify({'error': 'Internal server error'}), 500
 
 
+@app.after_request
+def add_cors_headers(response):
+    """Asegura que las respuestas incluyan encabezados CORS adecuados."""
+    response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
+    response.headers.add('Vary', 'Origin')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, x-api-key')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD')
+    return response
+
+
 if __name__ == '__main__':
     try:
         initialize_documents()
+        documents_initialized = True
     except Exception as e:
         logger.critical(f"Failed to initialize documents: {e}")
         # No salir, permitir que arranque para servir estáticos aunque falle la IA

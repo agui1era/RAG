@@ -30,6 +30,13 @@
       <p>El widget de chat debería aparecer en la esquina inferior derecha.</p>
     </div>
 
+    <script>
+      // Configuración global del widget (endpoint público y API key opcional)
+      window.RAG_WIDGET_CONFIG = {
+        endpoint: 'https://novarag.ngrok.app/chat',
+        apiKey: '' // coloca aquí tu WIDGET_API_KEY si quieres proteger el endpoint
+      };
+    </script>
     <!-- Importar el widget -->
     <script src="/static/widget.js"></script>
   </body>

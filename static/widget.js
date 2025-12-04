@@ -4,110 +4,134 @@
     style.innerHTML = `
         .rag-chat-widget-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background-color: #007bff;
-            border-radius: 50%;
+            bottom: 22px;
+            right: 22px;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #1b6bff, #5c9dff);
+            border-radius: 20px;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 30px rgba(25, 90, 255, 0.28);
             z-index: 9999;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .rag-chat-widget-btn:hover {
-            transform: scale(1.1);
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 16px 32px rgba(25, 90, 255, 0.34);
         }
         .rag-chat-window {
             position: fixed;
-            bottom: 90px;
-            right: 20px;
-            width: 350px;
-            height: 500px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            bottom: 110px;
+            right: 22px;
+            width: min(420px, 90vw);
+            height: min(620px, 80vh);
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
             display: none;
             flex-direction: column;
             z-index: 9999;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         .rag-chat-header {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #1b6bff, #5c9dff);
             color: white;
-            padding: 15px;
-            font-weight: bold;
+            padding: 16px 18px;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            letter-spacing: 0.3px;
         }
         .rag-chat-close {
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
+            opacity: 0.9;
+        }
+        .rag-chat-close:hover {
+            opacity: 1;
         }
         .rag-chat-messages {
             flex: 1;
-            padding: 15px;
+            padding: 18px;
             overflow-y: auto;
-            background-color: #f8f9fa;
+            background: radial-gradient(circle at top left, #f7fbff 0%, #f0f3f7 45%, #edf1f5 100%);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         .rag-message {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.5;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
         }
         .rag-message.user {
             align-self: flex-end;
-            background-color: #007bff;
+            background: linear-gradient(135deg, #1b6bff, #5c9dff);
             color: white;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
         }
         .rag-message.bot {
             align-self: flex-start;
-            background-color: #e9ecef;
-            color: #333;
-            border-bottom-left-radius: 4px;
+            background: #ffffff;
+            color: #1f2d3d;
+            border: 1px solid #e4e8ef;
+            border-bottom-left-radius: 6px;
         }
         .rag-chat-input-area {
-            padding: 15px;
-            border-top: 1px solid #eee;
+            padding: 14px 16px;
+            border-top: 1px solid #e4e8ef;
             display: flex;
             gap: 10px;
-            background-color: white;
+            background: #f9fbff;
         }
         .rag-chat-input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+            padding: 12px 14px;
+            border: 1px solid #d6deeb;
+            border-radius: 14px;
             outline: none;
+            font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .rag-chat-input:focus {
+            border-color: #5c9dff;
+            box-shadow: 0 0 0 3px rgba(92, 157, 255, 0.2);
         }
         .rag-chat-send {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #1b6bff, #5c9dff);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 12px 18px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            min-width: 88px;
+            box-shadow: 0 8px 20px rgba(25, 90, 255, 0.22);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+        }
+        .rag-chat-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(25, 90, 255, 0.28);
         }
         .rag-chat-send:disabled {
-            background-color: #ccc;
+            background: #c5d4f5;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
         .rag-typing {
             font-size: 12px;
-            color: #888;
+            color: #5d6b82;
             margin-left: 10px;
             display: none;
         }
@@ -123,11 +147,11 @@
     chatWindow.className = 'rag-chat-window';
     chatWindow.innerHTML = `
         <div class="rag-chat-header">
-            <span>PDF Assistant</span>
+            <span>Asistente IA</span>
             <span class="rag-chat-close">&times;</span>
         </div>
         <div class="rag-chat-messages" id="rag-messages">
-            <div class="rag-message bot">Hola! Soy tu asistente de documentos PDF. ¿En qué puedo ayudarte hoy?</div>
+            <div class="rag-message bot">Hola! Soy tu asistente IA. ¿En qué puedo ayudarte hoy?</div>
         </div>
         <div class="rag-typing" id="rag-typing">Escribiendo...</div>
         <div class="rag-chat-input-area">
@@ -188,20 +212,39 @@
         // or we can send the full conversation. 
         // Let's adapt to what we will implement in python: a list of messages.
         
-        // API URL - Change this if hosting the widget on a different domain
-        const API_URL = 'http://localhost:9994/chat';
+        // API URL - configurable via window.RAG_WIDGET_CONFIG.endpoint
+        const API_URL = (window.RAG_WIDGET_CONFIG && window.RAG_WIDGET_CONFIG.endpoint) || 'https://novarag.ngrok.app/chat';
+        const API_KEY = (window.RAG_WIDGET_CONFIG && window.RAG_WIDGET_CONFIG.apiKey) || '';
 
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(API_KEY ? { 'x-api-key': API_KEY } : {})
+                },
                 body: JSON.stringify({ 
                     prompt: text,
                     history: chatHistory 
                 })
             });
 
-            const data = await response.json();
+            if (!response.ok) {
+                const errText = await response.text();
+                addMessage(`Error ${response.status}: ${errText || 'sin respuesta'}`, 'bot');
+                return;
+            }
+
+            // Evitar fallo si la respuesta no es JSON válido
+            let data;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const txt = await response.text();
+                addMessage(`Respuesta inesperada del servidor: ${txt || 'vacío'}`, 'bot');
+                return;
+            }
             
             if (data.error) {
                 addMessage('Error: ' + data.error, 'bot');
