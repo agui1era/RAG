@@ -1,29 +1,36 @@
 # 🧠 PDF Chat API with LangChain, OpenAI & FAISS
 
-This project is a Flask-based API that allows users to query local PDF documents using natural language.  
-It uses OpenAI's LLMs, LangChain for chaining, and FAISS for semantic vector search over the document content.
+This project is a Flask-based API to query local PDF documents with natural language. It uses OpenAI LLMs, LangChain, and FAISS for semantic search over your document chunks.
 
 ## 🚀 Features
 
 - 📄 Reads and processes local PDF documents
 - 🤖 Embeds content using OpenAI embeddings
-- 📚 Creates a FAISS vector index for fast semantic search
-- 🧠 Answers user questions based on the content of those PDFs
+- 📚 Builds a FAISS vector index for fast semantic search
+- 🧠 Answers user questions based on those PDFs
 - 🛡️ Includes a health check endpoint
-- 🔐 Configurable via `.env` file
+- 🔐 Configurable via `.env` file (API key, chunking, model, widget API key, etc.)
 
 ---
 
 ## 📦 Requirements
 
-- Python 3.10+
+- Python 3.9+ (tested with 3.9)
 - OpenAI account (API key)
 - Create a `.env` file with:
 
 ```env
 OPENAI_API_KEY=your_openai_key
 PDF_DIRECTORY=./pdfs
-MAX_PAGES=10
+MAX_PAGES=50
+CHUNK_SIZE=500
+CHUNK_OVERLAP=0
+MODEL_NAME=gpt-4o-mini
+TEMPERATURE=0.5
+MAX_TOKENS=300
+PORT=9994
+RETRIEVER_K=3
+WIDGET_API_KEY=optional_shared_secret
 ```
 
 ---
@@ -42,21 +49,21 @@ Place your PDF files inside the directory specified in `PDF_DIRECTORY`.
 
 ### Adding New Documents
 
-1. **Add the file**: Copy your new PDF into the `pdfs/` folder.
-2. **Restart the server**: Stop and run `python app.py` again.
-3. **Automatic Indexing**: The server will detect the new file, process it, and update the index automatically.
-   - _Note_: Do NOT manually edit `processed_files.json`. The server manages this file to track what has already been read.
+1. Copy your new PDF into the `pdfs/` folder.
+2. Restart the server (`python app.py`).
+3. The server detects new files, embeds them, and updates the FAISS index.  
+   _Note_: Do not edit `processed_files.json`; it tracks processed PDFs.
 
 ---
 
 ## 🧠 How It Works
 
 - Loads PDFs from the configured folder
-- Extracts and splits text using LangChain’s `CharacterTextSplitter`
-- Embeds the content using `OpenAIEmbeddings`
-- Stores and/or loads a FAISS index
-- Initializes a RetrievalQA system
-- Responds to user prompts at `/chat` endpoint
+- Loads PDFs from the configured folder
+- Splits text with `RecursiveCharacterTextSplitter`
+- Embeds content via `OpenAIEmbeddings`
+- Stores/loads a FAISS index
+- Uses `ConversationalRetrievalChain` to answer prompts at `/chat`
 
 ---
 
@@ -64,31 +71,27 @@ Place your PDF files inside the directory specified in `PDF_DIRECTORY`.
 
 ```bash
 python app.py
-# or if the file has a different name, e.g.:
-python main.py
 ```
 
-The app runs on: `http://localhost:8080`
+The app runs on `http://localhost:9994`.
 
 ---
 
 ## 🛠️ API Endpoints
 
 ### `GET /health`
-
-Check if the API is alive:
-
+Quick health check:
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:9994/health
 ```
 
 ### `POST /chat`
-
-Send a prompt and get an answer based on the PDFs:
+Send a prompt and history:
 
 ```json
 {
-  "prompt": "What does the document say about data privacy?"
+  "prompt": "What does the document say about data privacy?",
+  "history": []  // optional, conversational pairs
 }
 ```
 
@@ -111,6 +114,12 @@ Returns:
 ## 📁 FAISS Index
 
 Once built, the FAISS index is saved locally in `faiss_index/` for future reuse.
+
+---
+
+## 🔒 Widget API key (optional)
+
+If you expose the `/chat` endpoint publicly, set `WIDGET_API_KEY` in `.env`. The widget will send it as `x-api-key` when you set the same value in `window.RAG_WIDGET_CONFIG.apiKey` inside `templates/index.html`.
 
 ---
 
