@@ -213,7 +213,7 @@
         // Let's adapt to what we will implement in python: a list of messages.
         
         // API URL - configurable via window.RAG_WIDGET_CONFIG.endpoint
-        const API_URL = (window.RAG_WIDGET_CONFIG && window.RAG_WIDGET_CONFIG.endpoint) || 'https://novarag.ngrok.app/chat';
+        const API_URL = (window.RAG_WIDGET_CONFIG && window.RAG_WIDGET_CONFIG.endpoint) || 'http://localhost:9994/chat';
         const API_KEY = (window.RAG_WIDGET_CONFIG && window.RAG_WIDGET_CONFIG.apiKey) || '';
 
         try {
