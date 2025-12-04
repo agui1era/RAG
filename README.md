@@ -1,4 +1,3 @@
-
 # 🧠 PDF Chat API with LangChain, OpenAI & FAISS
 
 This project is a Flask-based API that allows users to query local PDF documents using natural language.  
@@ -20,6 +19,7 @@ It uses OpenAI's LLMs, LangChain for chaining, and FAISS for semantic vector sea
 - Python 3.10+
 - OpenAI account (API key)
 - Create a `.env` file with:
+
 ```env
 OPENAI_API_KEY=your_openai_key
 PDF_DIRECTORY=./pdfs
@@ -39,6 +39,13 @@ pip install -r requirements.txt
 ```
 
 Place your PDF files inside the directory specified in `PDF_DIRECTORY`.
+
+### Adding New Documents
+
+1. **Add the file**: Copy your new PDF into the `pdfs/` folder.
+2. **Restart the server**: Stop and run `python app.py` again.
+3. **Automatic Indexing**: The server will detect the new file, process it, and update the index automatically.
+   - _Note_: Do NOT manually edit `processed_files.json`. The server manages this file to track what has already been read.
 
 ---
 
@@ -70,6 +77,7 @@ The app runs on: `http://localhost:8080`
 ### `GET /health`
 
 Check if the API is alive:
+
 ```bash
 curl http://localhost:8080/health
 ```
@@ -77,6 +85,7 @@ curl http://localhost:8080/health
 ### `POST /chat`
 
 Send a prompt and get an answer based on the PDFs:
+
 ```json
 {
   "prompt": "What does the document say about data privacy?"
@@ -84,6 +93,7 @@ Send a prompt and get an answer based on the PDFs:
 ```
 
 Returns:
+
 ```json
 {
   "choices": [

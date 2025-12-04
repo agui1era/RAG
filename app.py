@@ -3,9 +3,9 @@ from flask_cors import CORS
 import logging
 from PyPDF2 import PdfReader
 from langchain.chains import ConversationalRetrievalChain
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.docstore.document import Document
 from dotenv import load_dotenv
 import os
@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 API_KEY = os.getenv('OPENAI_API_KEY', 'tu_api_key_default')  # Clave de OpenAI
 PDF_DIRECTORY = os.getenv('PDF_DIRECTORY', './pdfs')         # Directorio de PDFs
 MAX_PAGES = int(os.getenv('MAX_PAGES', 10))                  # Máximo de páginas por PDF
-CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', 1000))
-CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', 0))
-MODEL_NAME = os.getenv('MODEL_NAME', 'gpt-4-turbo')
+CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', 500))
+CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', 200))
+MODEL_NAME = os.getenv('MODEL_NAME', 'gpt-4o-mini')
 TEMPERATURE = float(os.getenv('TEMPERATURE', 0.0))
-SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT', "You are a helpful assistant. Use the following pieces of context to answer the question at the end. If the answer is not in the context, say that you don't know, don't try to make up an answer.")
-MAX_TOKENS = int(os.getenv('MAX_TOKENS', 500))
+SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT', "Eres un asistente útil de documentos PDF para la compañía XYZ. Tienes acceso a documentos internos. Usa los siguientes fragmentos de contexto para responder la pregunta al final. Si la respuesta no está en el contexto, di que no lo sabes, no intentes inventar una respuesta.")
+MAX_TOKENS = int(os.getenv('MAX_TOKENS', 300))
 PORT = int(os.getenv('PORT', 9994))
 
 import json
@@ -45,8 +45,12 @@ PROCESSED_FILES_LOG = "processed_files.json"
 def load_processed_files():
     """Carga la lista de archivos ya procesados."""
     if os.path.exists(PROCESSED_FILES_LOG):
-        with open(PROCESSED_FILES_LOG, 'r') as f:
-            return set(json.load(f))
+        try:
+            with open(PROCESSED_FILES_LOG, 'r') as f:
+                return set(json.load(f))
+        except json.JSONDecodeError:
+            logger.warning(f"{PROCESSED_FILES_LOG} is empty or corrupted. Starting with empty set.")
+            return set()
     return set()
 
 
@@ -119,15 +123,21 @@ def initialize_documents():
     
     processed_files = load_processed_files()
     
-    # 1. Intentar cargar el índice existente
-    try:
-        docsearch = FAISS.load_local("faiss_index", OpenAIEmbeddings(api_key=API_KEY))
-        logger.info("FAISS index loaded from local storage")
-    except Exception:
+    # 1. Intentar cargar el índice existente SOLO si hay archivos procesados
+    if processed_files:
+        try:
+            docsearch = FAISS.load_local("faiss_index", OpenAIEmbeddings(api_key=API_KEY), allow_dangerous_deserialization=True)
+            logger.info("FAISS index loaded from local storage")
+        except Exception:
+            docsearch = None
+            logger.info("No existing FAISS index found or error loading it.")
+    else:
         docsearch = None
-        logger.info("No existing FAISS index found.")
+        logger.info("Processed files list is empty. Starting with a fresh index.")
 
     # 2. Buscar archivos nuevos
+    logger.info(f"Checking for new files in {PDF_DIRECTORY}...")
+    logger.info(f"Already processed files: {processed_files}")
     new_pdf_text, new_files = load_pdfs_from_local(PDF_DIRECTORY, processed_files)
     
     if new_files:
@@ -135,7 +145,7 @@ def initialize_documents():
         total_tokens = count_tokens(new_pdf_text)
         logger.info(f"Total tokens in new files: {total_tokens}")
         
-        text_splitter = CharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
         docs = text_splitter.split_text(new_pdf_text)
         
         # 3. Actualizar o crear índice
@@ -173,11 +183,13 @@ Helpful Answer:"""
     
     QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"], template=final_template)
 
+    RETRIEVER_K = int(os.getenv('RETRIEVER_K', 3))
+    
     # Usamos ConversationalRetrievalChain para manejar historial
     # combine_docs_chain_kwargs allows passing the prompt to the internal stuff chain
     qa = ConversationalRetrievalChain.from_llm(
         llm=llm, 
-        retriever=docsearch.as_retriever(),
+        retriever=docsearch.as_retriever(search_kwargs={"k": RETRIEVER_K}),
         combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT}
     )
     logger.info("Document initialization complete")
