@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin .env | RAG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #070c14;
+        --panel: #0f1725;
+        --card: #121c2f;
+        --ink: #e8eefb;
+        --muted: #8da2c4;
+        --accent: #22d3a4;
+        --accent-2: #f8c537;
+        --stroke: #1f2a3c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background: radial-gradient(circle at 20% 20%, #10233c, #090f1c 60%, #05070e 100%);
+        padding: 32px;
+        display: flex;
+        justify-content: center;
+      }
+      .frame {
+        width: min(1200px, 100%);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .hero {
+        background: linear-gradient(135deg, rgba(34, 211, 164, 0.12), rgba(45, 110, 255, 0.08));
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .hero .title {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: -0.5px;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 720px;
+        line-height: 1.5;
+      }
+      .hero .badge {
+        background: rgba(34, 211, 164, 0.12);
+        color: var(--accent);
+        padding: 8px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(34, 211, 164, 0.3);
+        font-weight: 600;
+        letter-spacing: 0.2px;
+      }
+      .panel {
+        background: linear-gradient(160deg, rgba(18, 28, 47, 0.95), rgba(12, 19, 32, 0.96));
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--stroke);
+      }
+      .panel-header h2 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: -0.2px;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 0 6px rgba(34, 211, 164, 0.1);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 14px;
+        padding: 16px 4px 4px;
+      }
+      .field {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        padding: 12px 12px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .field label span {
+        display: block;
+        margin-top: 4px;
+        color: #9fb3d9;
+        font-weight: 500;
+      }
+      input,
+      textarea {
+        width: 100%;
+        background: #0c1625;
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        transition: border 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+      }
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: rgba(34, 211, 164, 0.6);
+        box-shadow: 0 0 0 4px rgba(34, 211, 164, 0.12);
+        transform: translateY(-1px);
+      }
+      textarea {
+        min-height: 84px;
+        resize: vertical;
+      }
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 4px 2px;
+      }
+      button {
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        padding: 10px 14px;
+        background: #0d1422;
+        color: var(--ink);
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.2px;
+        transition: transform 0.1s ease, box-shadow 0.18s ease, border-color 0.2s ease;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(34, 211, 164, 0.5);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+      button.primary {
+        background: linear-gradient(135deg, #22d3a4, #0fb88a);
+        color: #041012;
+        border-color: transparent;
+      }
+      button.secondary {
+        color: var(--muted);
+      }
+      .toast {
+        margin-top: 8px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
+        background: #0c1524;
+        color: var(--muted);
+        display: none;
+        align-items: center;
+        gap: 10px;
+      }
+      .toast.show {
+        display: inline-flex;
+      }
+      .pill {
+        padding: 6px 10px;
+        background: rgba(248, 197, 55, 0.14);
+        color: var(--accent-2);
+        border-radius: 999px;
+        border: 1px solid rgba(248, 197, 55, 0.4);
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .upload {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px dashed rgba(34, 211, 164, 0.6);
+        color: var(--ink);
+        background: rgba(34, 211, 164, 0.08);
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.18s ease, border 0.18s ease;
+      }
+      .upload:hover {
+        background: rgba(34, 211, 164, 0.14);
+        border-color: rgba(34, 211, 164, 0.8);
+      }
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+      @media (max-width: 720px) {
+        body {
+          padding: 18px;
+        }
+        .panel-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .actions {
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="hero">
+        <div class="title">
+          <h1>Panel de variables</h1>
+          <p>Edita el archivo <strong>.env</strong> sin salir del navegador. Los cambios se guardan en disco; reinicia el servidor si modificas claves críticas como el puerto o el modelo.</p>
+        </div>
+        <div class="badge">.env control</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Variables de entorno</h2>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <label class="upload" for="env-file">Subir .env</label>
+            <input id="env-file" type="file" accept=".env,text/plain" style="display:none" />
+            <div class="status">
+              <span class="dot"></span>
+              <span id="status-text">Cargando...</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="env-grid" class="grid"></div>
+
+        <div class="actions">
+          <span id="last-sync" class="pill">Sincronizando...</span>
+          <div style="flex:1"></div>
+          <button class="secondary" id="reload-btn">Descartar cambios</button>
+          <button class="primary" id="save-btn">Guardar</button>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+
+    <script>
+      const INITIAL_SCHEMA = {{ env_schema|tojson|safe }};
+      const INITIAL_VALUES = {{ env_data|tojson|safe }};
+
+      const grid = document.getElementById("env-grid");
+      const toast = document.getElementById("toast");
+      const statusText = document.getElementById("status-text");
+      const lastSync = document.getElementById("last-sync");
+      const saveBtn = document.getElementById("save-btn");
+      const reloadBtn = document.getElementById("reload-btn");
+      const fileInput = document.getElementById("env-file");
+
+      let schema = INITIAL_SCHEMA || [];
+      let values = INITIAL_VALUES || {};
+
+      const formatTime = () => {
+        const now = new Date();
+        return now.toLocaleTimeString();
+      };
+
+      const showToast = (message, tone = "info") => {
+        toast.textContent = message;
+        toast.style.borderColor = tone === "error" ? "#f07178" : "rgba(34, 211, 164, 0.6)";
+        toast.style.color = tone === "error" ? "#f07178" : "#9fe7cf";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 4200);
+      };
+
+      const createField = (field, value = "") => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "field";
+
+        const label = document.createElement("label");
+        label.innerHTML = `${field.label}<span>${field.description || ""}</span>`;
+
+        let input;
+        if (field.type === "textarea") {
+          input = document.createElement("textarea");
+          input.rows = 3;
+        } else {
+          input = document.createElement("input");
+          input.type = field.type === "number" ? "number" : field.type === "password" ? "password" : "text";
+        }
+        input.id = `env-${field.key}`;
+        input.value = value || "";
+        input.autocomplete = "off";
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        return wrapper;
+      };
+
+      const renderFields = () => {
+        grid.innerHTML = "";
+        schema.forEach((field) => {
+          grid.appendChild(createField(field, values[field.key]));
+        });
+      };
+
+      const parseEnvText = (text) => {
+        const parsed = {};
+        text.split(/\r?\n/).forEach((line) => {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) return;
+          const [key, ...rest] = trimmed.split("=");
+          parsed[key.trim()] = rest.join("=").trim();
+        });
+        return parsed;
+      };
+
+      const setLoading = (state) => {
+        if (state) {
+          document.body.classList.add("loading");
+          statusText.textContent = "Sincronizando...";
+        } else {
+          document.body.classList.remove("loading");
+          statusText.textContent = "Listo";
+        }
+      };
+
+      const fetchEnv = async () => {
+        setLoading(true);
+        try {
+          const res = await fetch("/api/env");
+          if (!res.ok) throw new Error("No se pudo obtener el .env");
+          const data = await res.json();
+          schema = data.schema || [];
+          values = data.env || {};
+          renderFields();
+          lastSync.textContent = `Actualizado: ${formatTime()}`;
+        } catch (err) {
+          showToast(err.message, "error");
+          statusText.textContent = "Error al cargar";
+          if (!grid.childElementCount) {
+            renderFields();
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const collectValues = () => {
+        const payload = {};
+        schema.forEach((field) => {
+          const el = document.getElementById(`env-${field.key}`);
+          if (!el) return;
+          payload[field.key] = el.value;
+        });
+        return payload;
+      };
+
+      const saveEnv = async () => {
+        setLoading(true);
+        try {
+          const payload = { env: collectValues() };
+          const res = await fetch("/api/env", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.error || "No se pudo guardar el .env");
+          }
+          showToast("Cambios guardados en .env");
+          lastSync.textContent = `Actualizado: ${formatTime()}`;
+        } catch (err) {
+          showToast(err.message, "error");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const loadFromFile = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const parsed = parseEnvText(e.target.result || "");
+          if (!Object.keys(parsed).length) {
+            showToast("No se encontraron claves válidas en el archivo.", "error");
+            return;
+          }
+          values = { ...values, ...parsed };
+          renderFields();
+          lastSync.textContent = `Cargado desde archivo: ${file.name}`;
+          showToast(".env cargado, recuerda Guardar para escribir en disco.");
+        };
+        reader.onerror = () => showToast("No se pudo leer el archivo.", "error");
+        reader.readAsText(file);
+      };
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        loadFromFile(file);
+        e.target.value = "";
+      });
+
+      saveBtn.addEventListener("click", saveEnv);
+      reloadBtn.addEventListener("click", fetchEnv);
+
+      renderFields();
+      fetchEnv();
+    </script>
+  </body>
+</html>

@@ -7,3 +7,4 @@ faiss-cpu
 python-dotenv
 tiktoken
 langchain-community
+langchain-openai
